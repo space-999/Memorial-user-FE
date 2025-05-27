@@ -10,11 +10,12 @@ import { toast, Toaster } from 'react-hot-toast';
 const Index = () => {
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [hoveredPosition, setHoveredPosition] = useState<{ x: number; y: number } | null>(null);
   
   const {
     flowers,
     leaves,
-    isLoading,
+    isLoadingInitial,
     error,
     createFlower,
     createLeaf,
@@ -30,17 +31,23 @@ const Index = () => {
     await createLeaf();
   };
 
-  const handleMessageClick = (message: string, date: string) => {
+  const handleMessageHover = (message: string, date: string, event: React.MouseEvent) => {
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
     setSelectedMessage(message);
     setSelectedDate(date);
+    setHoveredPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10
+    });
   };
 
-  const handleCloseMessage = () => {
+  const handleMessageLeave = () => {
     setSelectedMessage(null);
     setSelectedDate(null);
+    setHoveredPosition(null);
   };
 
-  if (isLoading && flowers.length === 0 && leaves.length === 0) {
+  if (isLoadingInitial && flowers.length === 0 && leaves.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background-start to-background-end p-4 text-foreground">
         마음들을 불러오고 있습니다...
@@ -99,8 +106,8 @@ const Index = () => {
 
         {/* 메시지 표시 섹션 */}
         <section className="relative z-10 px-4 pb-8 md:pb-12">
-          <div className="max-w-7xl mx-auto">
-            {isLoading ? (
+          <div className="max-w-5xl mx-auto">
+            {isLoadingInitial ? (
               <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center space-y-6">
                   <div className="relative inline-block">
@@ -117,29 +124,30 @@ const Index = () => {
                 <MessageDisplay 
                   flowers={flowers} 
                   leaves={leaves} 
-                  onMessageClick={handleMessageClick}
+                  onMessageHover={handleMessageHover}
+                  onMessageLeave={handleMessageLeave}
                 />
               </div>
             )}
           </div>
         </section>
 
-        {/* 중앙 메시지 표시 */}
-        {selectedMessage && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={handleCloseMessage}>
-            <div className="bg-white/95 backdrop-blur-sm border border-pink-200/50 rounded-xl p-6 max-w-md mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
-              <p className="text-gray-800 leading-relaxed font-medium mb-2">
+        {/* 호버시 메시지 표시 */}
+        {selectedMessage && hoveredPosition && (
+          <div 
+            className="fixed pointer-events-none z-[9999] transform -translate-x-1/2 -translate-y-full"
+            style={{
+              left: `${hoveredPosition.x}px`,
+              top: `${hoveredPosition.y}px`,
+            }}
+          >
+            <div className="bg-white/95 backdrop-blur-sm border border-pink-200/50 rounded-lg px-4 py-2 shadow-xl max-w-xs">
+              <p className="text-gray-800 text-sm font-medium mb-1">
                 {selectedMessage}
               </p>
               <p className="text-xs text-gray-500 opacity-80 font-light">
                 {selectedDate}
               </p>
-              <button 
-                onClick={handleCloseMessage}
-                className="mt-4 text-pink-500 hover:text-pink-600 text-sm font-medium"
-              >
-                닫기
-              </button>
             </div>
           </div>
         )}

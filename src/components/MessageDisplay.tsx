@@ -6,29 +6,45 @@ import { Heart, Sparkles } from 'lucide-react';
 interface MessageDisplayProps {
   flowers: FlowerMessage[];
   leaves: LeafMessage[];
-  onMessageClick: (message: string, date: string) => void;
+  onMessageHover: (message: string, date: string, event: React.MouseEvent) => void;
+  onMessageLeave: () => void;
 }
 
-// 샘플 데이터 - 6개 꽃 메시지
-const sampleFlowers: FlowerMessage[] = [
-  { id: 1, content: "소중한 생명을 나누어주신 기증자님께 깊은 감사를 드립니다", createdAt: new Date().toISOString() },
-  { id: 2, content: "따뜻한 마음으로 생명을 구해주셔서 감사합니다", createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
-  { id: 3, content: "당신의 선택이 새로운 희망이 되었습니다", createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString() },
-  { id: 4, content: "숭고한 뜻을 기리며 기도드립니다", createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
-  { id: 5, content: "천사와 같은 마음에 존경을 표합니다", createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
-  { id: 6, content: "영원히 기억될 아름다운 마음에 감사합니다", createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString() }
-];
+// 샘플 데이터 - 10개 꽃 메시지
+const sampleFlowers: FlowerMessage[] = Array.from({ length: 10 }, (_, i) => ({
+  id: i + 1,
+  content: [
+    "소중한 생명을 나누어주신 기증자님께 깊은 감사를 드립니다",
+    "따뜻한 마음으로 생명을 구해주셔서 감사합니다",
+    "당신의 선택이 새로운 희망이 되었습니다",
+    "숭고한 뜻을 기리며 기도드립니다",
+    "천사와 같은 마음에 존경을 표합니다",
+    "영원히 기억될 아름다운 마음에 감사합니다",
+    "생명의 선물을 주셔서 감사합니다",
+    "당신의 사랑이 계속 이어집니다",
+    "마음 깊이 감사드리며 기억하겠습니다",
+    "고귀한 결정에 진심으로 감사합니다"
+  ][i],
+  createdAt: new Date(Date.now() - i * 1000 * 60 * 30).toISOString()
+}));
 
-// 샘플 데이터 - 5개 나뭇잎 메시지
-const sampleLeaves: LeafMessage[] = [
-  { id: 1, content: "감사합니다", createdAt: new Date().toISOString() },
-  { id: 2, content: "고마운 마음", createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString() },
-  { id: 3, content: "기억하겠습니다", createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
-  { id: 4, content: "존경합니다", createdAt: new Date(Date.now() - 1000 * 60 * 135).toISOString() },
-  { id: 5, content: "마음을 전합니다", createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString() }
-];
+// 샘플 데이터 - 15개 나뭇잎 메시지
+const sampleLeaves: LeafMessage[] = Array.from({ length: 15 }, (_, i) => ({
+  id: i + 1,
+  content: [
+    "감사합니다", "고마운 마음", "기억하겠습니다", "존경합니다", "마음을 전합니다",
+    "따뜻한 위로", "소중한 선물", "아름다운 마음", "깊은 감동", "진심 어린 감사",
+    "영원한 기억", "고귀한 뜻", "사랑합니다", "축복합니다", "평안하세요"
+  ][i],
+  createdAt: new Date(Date.now() - i * 1000 * 60 * 45).toISOString()
+}));
 
-const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMessageClick }) => {
+const MessageDisplay: React.FC<MessageDisplayProps> = ({ 
+  flowers, 
+  leaves, 
+  onMessageHover, 
+  onMessageLeave 
+}) => {
   // 실제 데이터가 없으면 샘플 데이터 사용
   const displayFlowers = flowers.length > 0 ? flowers : sampleFlowers;
   const displayLeaves = leaves.length > 0 ? leaves : sampleLeaves;
@@ -47,7 +63,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMess
     if (total === 1) return { x: 50, y: 50 };
     
     const angle = (index * 2 * Math.PI) / total;
-    const radius = 25;
+    const radius = 22;
     const x = 50 + radius * Math.cos(angle);
     const y = 50 + radius * Math.sin(angle);
     
@@ -60,7 +76,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMess
   // 나뭇잎을 더 자연스럽게 분산 배치
   const getLeafPosition = (index: number, total: number) => {
     const angle = (index * 2 * Math.PI) / total + Math.PI / 4;
-    const radius = 35;
+    const radius = 32;
     const x = 50 + radius * Math.cos(angle);
     const y = 50 + radius * Math.sin(angle);
     
@@ -70,7 +86,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMess
     };
   };
 
-  const handleItemClick = (item: FlowerMessage | LeafMessage) => {
+  const handleItemHover = (item: FlowerMessage | LeafMessage, event: React.MouseEvent) => {
     const message = item.content || (item as any).message || '메시지가 없습니다';
     const date = new Date(item.createdAt).toLocaleDateString('ko-KR', {
       month: 'short',
@@ -78,11 +94,11 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMess
       hour: '2-digit',
       minute: '2-digit'
     });
-    onMessageClick(message, date);
+    onMessageHover(message, date, event);
   };
 
   return (
-    <div className="message-container w-full min-h-[75vh] relative overflow-hidden">
+    <div className="message-container w-full h-[500px] relative overflow-hidden">
       {/* 배경 장식 요소들 */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-xl animate-gentle-float"></div>
@@ -107,13 +123,14 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMess
             >
               {/* 나뭇잎 모양 메시지 */}
               <div 
-                className="leaf-shape-message cursor-pointer hover:scale-110 transition-all duration-400"
-                onClick={() => handleItemClick(leaf)}
+                className="leaf-shape-message cursor-pointer hover:scale-110 transition-all duration-300"
+                onMouseEnter={(e) => handleItemHover(leaf, e)}
+                onMouseLeave={onMessageLeave}
               >
                 <div className="relative w-16 h-20">
                   {/* 나뭇잎 모양 */}
                   <div 
-                    className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80 pointer-events-auto"
+                    className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80"
                     style={{
                       borderRadius: '0 100% 0 100%',
                       boxShadow: '0 4px 15px rgba(16, 185, 129, 0.2)',
@@ -149,8 +166,9 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMess
             >
               {/* 꽃 모양 메시지 */}
               <div 
-                className="flower-shape-message cursor-pointer hover:scale-105 transition-all duration-500"
-                onClick={() => handleItemClick(flower)}
+                className="flower-shape-message cursor-pointer hover:scale-105 transition-all duration-300"
+                onMouseEnter={(e) => handleItemHover(flower, e)}
+                onMouseLeave={onMessageLeave}
               >
                 {/* 꽃잎들 */}
                 <div className="relative w-24 h-24">
@@ -158,7 +176,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMess
                   {[0, 1, 2, 3, 4].map((petalIndex) => (
                     <div
                       key={petalIndex}
-                      className="absolute w-8 h-12 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom pointer-events-auto"
+                      className="absolute w-8 h-12 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
                       style={{
                         left: '50%',
                         top: '50%',
