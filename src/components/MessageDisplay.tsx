@@ -6,7 +6,7 @@ import { Heart, Sparkles } from 'lucide-react';
 interface MessageDisplayProps {
   flowers: FlowerMessage[];
   leaves: LeafMessage[];
-  isLoading: boolean;
+  onMessageClick: (message: string, date: string) => void;
 }
 
 // 샘플 데이터 - 6개 꽃 메시지
@@ -28,16 +28,18 @@ const sampleLeaves: LeafMessage[] = [
   { id: 5, content: "마음을 전합니다", createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString() }
 ];
 
-const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
+const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves, onMessageClick }) => {
   // 실제 데이터가 없으면 샘플 데이터 사용
   const displayFlowers = flowers.length > 0 ? flowers : sampleFlowers;
   const displayLeaves = leaves.length > 0 ? leaves : sampleLeaves;
 
+  console.log('Display flowers:', displayFlowers);
+  console.log('Display leaves:', displayLeaves);
+
   // 나뭇잎마다 고유한 랜덤 회전값을 생성하는 함수
   const getLeafRotation = (id: number) => {
-    // ID를 시드로 사용하여 일관된 랜덤값 생성
-    const seed = id * 137.508; // 황금각 사용
-    return (seed % 360) - 180; // -180도에서 180도 사이
+    const seed = id * 137.508;
+    return (seed % 360) - 180;
   };
 
   // 꽃 메시지들을 원형으로 배치
@@ -45,7 +47,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
     if (total === 1) return { x: 50, y: 50 };
     
     const angle = (index * 2 * Math.PI) / total;
-    const radius = 25; // 중앙에서의 거리
+    const radius = 25;
     const x = 50 + radius * Math.cos(angle);
     const y = 50 + radius * Math.sin(angle);
     
@@ -57,8 +59,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
 
   // 나뭇잎을 더 자연스럽게 분산 배치
   const getLeafPosition = (index: number, total: number) => {
-    const angle = (index * 2 * Math.PI) / total + Math.PI / 4; // 45도 회전하여 꽃과 겹치지 않게
-    const radius = 35; // 꽃보다 더 바깥쪽
+    const angle = (index * 2 * Math.PI) / total + Math.PI / 4;
+    const radius = 35;
     const x = 50 + radius * Math.cos(angle);
     const y = 50 + radius * Math.sin(angle);
     
@@ -66,6 +68,17 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
       x: Math.max(10, Math.min(90, x)), 
       y: Math.max(10, Math.min(90, y)) 
     };
+  };
+
+  const handleItemClick = (item: FlowerMessage | LeafMessage) => {
+    const message = item.content || (item as any).message || '메시지가 없습니다';
+    const date = new Date(item.createdAt).toLocaleDateString('ko-KR', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    onMessageClick(message, date);
   };
 
   return (
@@ -78,7 +91,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
       </div>
 
       <div className="absolute inset-0 p-6 md:p-12">
-        {/* 나뭇잎 메시지들 - 꽃보다 뒤에 배치 (z-index 낮음) */}
+        {/* 나뭇잎 메시지들 - 꽃보다 뒤에 배치 */}
         {displayLeaves.map((leaf, index) => {
           const position = getLeafPosition(index, displayLeaves.length);
           const rotation = getLeafRotation(leaf.id);
@@ -93,11 +106,14 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
               }}
             >
               {/* 나뭇잎 모양 메시지 */}
-              <div className="leaf-shape-message group cursor-pointer hover:scale-110 transition-all duration-400">
-                <div className="relative w-20 h-28">
-                  {/* 나뭇잎 모양 - 랜덤 회전 적용 */}
+              <div 
+                className="leaf-shape-message cursor-pointer hover:scale-110 transition-all duration-400"
+                onClick={() => handleItemClick(leaf)}
+              >
+                <div className="relative w-16 h-20">
+                  {/* 나뭇잎 모양 */}
                   <div 
-                    className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80"
+                    className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80 pointer-events-auto"
                     style={{
                       borderRadius: '0 100% 0 100%',
                       boxShadow: '0 4px 15px rgba(16, 185, 129, 0.2)',
@@ -105,29 +121,12 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
                     }}
                   >
                     {/* 나뭇잎 줄기 */}
-                    <div className="absolute top-1/2 left-1/2 w-0.5 h-16 bg-green-400/60 transform -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+                    <div className="absolute top-1/2 left-1/2 w-0.5 h-12 bg-green-400/60 transform -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></div>
                     
                     {/* 나뭇잎 중앙 아이콘 */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <Sparkles className="w-4 h-4 text-emerald-700" />
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                      <Sparkles className="w-3 h-3 text-emerald-700" />
                     </div>
-                  </div>
-                </div>
-                
-                {/* 메시지 툴팁 - 가로형으로 수정 */}
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
-                  <div className="bg-white/95 backdrop-blur-sm border border-emerald-200/50 rounded-xl p-3 w-64 shadow-lg">
-                    <p className="text-sm text-gray-800 leading-relaxed break-words font-medium mb-1">
-                      {leaf.content}
-                    </p>
-                    <p className="text-xs text-gray-500 opacity-80 font-light">
-                      {new Date(leaf.createdAt).toLocaleDateString('ko-KR', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -135,7 +134,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
           );
         })}
 
-        {/* 꽃 메시지들 - 나뭇잎보다 앞에 배치 (z-index 높음) */}
+        {/* 꽃 메시지들 - 나뭇잎보다 앞에 배치 */}
         {displayFlowers.map((flower, index) => {
           const position = getFlowerPosition(index, displayFlowers.length);
           return (
@@ -149,14 +148,17 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
               }}
             >
               {/* 꽃 모양 메시지 */}
-              <div className="flower-shape-message group cursor-pointer hover:scale-105 transition-all duration-500">
+              <div 
+                className="flower-shape-message cursor-pointer hover:scale-105 transition-all duration-500"
+                onClick={() => handleItemClick(flower)}
+              >
                 {/* 꽃잎들 */}
-                <div className="relative w-32 h-32">
+                <div className="relative w-24 h-24">
                   {/* 5개 꽃잎을 원형으로 배치 */}
                   {[0, 1, 2, 3, 4].map((petalIndex) => (
                     <div
                       key={petalIndex}
-                      className="absolute w-12 h-16 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
+                      className="absolute w-8 h-12 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom pointer-events-auto"
                       style={{
                         left: '50%',
                         top: '50%',
@@ -168,25 +170,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
                   ))}
                   
                   {/* 꽃 중앙 */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50">
-                    <Heart className="w-4 h-4 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                  </div>
-                </div>
-                
-                {/* 메시지 툴팁 - 가로형으로 수정 */}
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
-                  <div className="bg-white/95 backdrop-blur-sm border border-rose-200/50 rounded-xl p-3 w-64 shadow-lg">
-                    <p className="text-sm text-gray-800 leading-relaxed break-words font-medium mb-1">
-                      {flower.content}
-                    </p>
-                    <p className="text-xs text-gray-500 opacity-80 font-light">
-                      {new Date(flower.createdAt).toLocaleDateString('ko-KR', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
+                    <Heart className="w-3 h-3 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                   </div>
                 </div>
               </div>
