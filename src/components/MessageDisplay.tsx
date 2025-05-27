@@ -1,0 +1,217 @@
+
+import React from 'react';
+import { FlowerMessage, LeafMessage } from '@/types/memorial';
+import { Heart, Sparkles } from 'lucide-react';
+
+interface MessageDisplayProps {
+  flowers: FlowerMessage[];
+  leaves: LeafMessage[];
+  isLoading: boolean;
+}
+
+// 샘플 데이터 - 6개 꽃 메시지
+const sampleFlowers: FlowerMessage[] = [
+  { id: 1, content: "소중한 생명을 나누어주신 기증자님께 깊은 감사를 드립니다", createdAt: new Date().toISOString() },
+  { id: 2, content: "따뜻한 마음으로 생명을 구해주셔서 감사합니다", createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
+  { id: 3, content: "당신의 선택이 새로운 희망이 되었습니다", createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString() },
+  { id: 4, content: "숭고한 뜻을 기리며 기도드립니다", createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
+  { id: 5, content: "천사와 같은 마음에 존경을 표합니다", createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
+  { id: 6, content: "영원히 기억될 아름다운 마음에 감사합니다", createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString() }
+];
+
+// 샘플 데이터 - 5개 나뭇잎 메시지
+const sampleLeaves: LeafMessage[] = [
+  { id: 1, content: "감사합니다", createdAt: new Date().toISOString() },
+  { id: 2, content: "고마운 마음", createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString() },
+  { id: 3, content: "기억하겠습니다", createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
+  { id: 4, content: "존경합니다", createdAt: new Date(Date.now() - 1000 * 60 * 135).toISOString() },
+  { id: 5, content: "마음을 전합니다", createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString() }
+];
+
+const MessageDisplay: React.FC<MessageDisplayProps> = ({ flowers, leaves }) => {
+  // 실제 데이터가 없으면 샘플 데이터 사용
+  const displayFlowers = flowers.length > 0 ? flowers : sampleFlowers;
+  const displayLeaves = leaves.length > 0 ? leaves : sampleLeaves;
+
+  // 나뭇잎마다 고유한 랜덤 회전값을 생성하는 함수
+  const getLeafRotation = (id: number) => {
+    // ID를 시드로 사용하여 일관된 랜덤값 생성
+    const seed = id * 137.508; // 황금각 사용
+    return (seed % 360) - 180; // -180도에서 180도 사이
+  };
+
+  // 꽃 메시지들을 원형으로 배치
+  const getFlowerPosition = (index: number, total: number) => {
+    if (total === 1) return { x: 50, y: 50 };
+    
+    const angle = (index * 2 * Math.PI) / total;
+    const radius = 25; // 중앙에서의 거리
+    const x = 50 + radius * Math.cos(angle);
+    const y = 50 + radius * Math.sin(angle);
+    
+    return { 
+      x: Math.max(15, Math.min(85, x)), 
+      y: Math.max(15, Math.min(85, y)) 
+    };
+  };
+
+  // 나뭇잎을 더 자연스럽게 분산 배치
+  const getLeafPosition = (index: number, total: number) => {
+    const angle = (index * 2 * Math.PI) / total + Math.PI / 4; // 45도 회전하여 꽃과 겹치지 않게
+    const radius = 35; // 꽃보다 더 바깥쪽
+    const x = 50 + radius * Math.cos(angle);
+    const y = 50 + radius * Math.sin(angle);
+    
+    return { 
+      x: Math.max(10, Math.min(90, x)), 
+      y: Math.max(10, Math.min(90, y)) 
+    };
+  };
+
+  return (
+    <div className="message-container w-full min-h-[75vh] relative overflow-hidden">
+      {/* 배경 장식 요소들 */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-xl animate-gentle-float"></div>
+        <div className="absolute bottom-20 right-20 w-16 h-16 bg-gradient-to-br from-rose-200 to-pink-200 rounded-full blur-xl animate-gentle-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-gradient-to-br from-emerald-200 to-teal-200 rounded-full blur-lg animate-gentle-float" style={{ animationDelay: '4s' }}></div>
+      </div>
+
+      <div className="absolute inset-0 p-6 md:p-12">
+        {/* 나뭇잎 메시지들 - 꽃보다 뒤에 배치 (z-index 낮음) */}
+        {displayLeaves.map((leaf, index) => {
+          const position = getLeafPosition(index, displayLeaves.length);
+          const rotation = getLeafRotation(leaf.id);
+          return (
+            <div
+              key={leaf.id}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 animate-fade-in z-10"
+              style={{
+                left: `${position.x}%`,
+                top: `${position.y}%`,
+                animationDelay: `${(displayFlowers.length + index) * 0.15}s`,
+              }}
+            >
+              {/* 나뭇잎 모양 메시지 */}
+              <div className="leaf-shape-message group cursor-pointer hover:scale-110 transition-all duration-400">
+                <div className="relative w-20 h-28">
+                  {/* 나뭇잎 모양 - 랜덤 회전 적용 */}
+                  <div 
+                    className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80"
+                    style={{
+                      borderRadius: '0 100% 0 100%',
+                      boxShadow: '0 4px 15px rgba(16, 185, 129, 0.2)',
+                      transform: `rotate(${rotation}deg)`,
+                    }}
+                  >
+                    {/* 나뭇잎 줄기 */}
+                    <div className="absolute top-1/2 left-1/2 w-0.5 h-16 bg-green-400/60 transform -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+                    
+                    {/* 나뭇잎 중앙 아이콘 */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <Sparkles className="w-4 h-4 text-emerald-700" />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 메시지 툴팁 - 가로형으로 수정 */}
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+                  <div className="bg-white/95 backdrop-blur-sm border border-emerald-200/50 rounded-xl p-3 w-64 shadow-lg">
+                    <p className="text-sm text-gray-800 leading-relaxed break-words font-medium mb-1">
+                      {leaf.content}
+                    </p>
+                    <p className="text-xs text-gray-500 opacity-80 font-light">
+                      {new Date(leaf.createdAt).toLocaleDateString('ko-KR', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* 꽃 메시지들 - 나뭇잎보다 앞에 배치 (z-index 높음) */}
+        {displayFlowers.map((flower, index) => {
+          const position = getFlowerPosition(index, displayFlowers.length);
+          return (
+            <div
+              key={flower.id}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 animate-fade-in z-20"
+              style={{
+                left: `${position.x}%`,
+                top: `${position.y}%`,
+                animationDelay: `${index * 0.2}s`,
+              }}
+            >
+              {/* 꽃 모양 메시지 */}
+              <div className="flower-shape-message group cursor-pointer hover:scale-105 transition-all duration-500">
+                {/* 꽃잎들 */}
+                <div className="relative w-32 h-32">
+                  {/* 5개 꽃잎을 원형으로 배치 */}
+                  {[0, 1, 2, 3, 4].map((petalIndex) => (
+                    <div
+                      key={petalIndex}
+                      className="absolute w-12 h-16 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                        transform: `translate(-50%, -75%) rotate(${petalIndex * 72}deg)`,
+                        borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                        boxShadow: '0 4px 15px rgba(251, 113, 133, 0.2)',
+                      }}
+                    />
+                  ))}
+                  
+                  {/* 꽃 중앙 */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50">
+                    <Heart className="w-4 h-4 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  </div>
+                </div>
+                
+                {/* 메시지 툴팁 - 가로형으로 수정 */}
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+                  <div className="bg-white/95 backdrop-blur-sm border border-rose-200/50 rounded-xl p-3 w-64 shadow-lg">
+                    <p className="text-sm text-gray-800 leading-relaxed break-words font-medium mb-1">
+                      {flower.content}
+                    </p>
+                    <p className="text-xs text-gray-500 opacity-80 font-light">
+                      {new Date(flower.createdAt).toLocaleDateString('ko-KR', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 상태 표시 - 우측 하단 */}
+      <div className="absolute bottom-6 right-6 z-30">
+        <div className="glass-effect rounded-2xl px-6 py-3">
+          <div className="flex items-center gap-6 text-sm font-medium">
+            <div className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-rose-500" />
+              <span className="text-gray-700">{displayFlowers.length}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-emerald-500" />
+              <span className="text-gray-700">{displayLeaves.length}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MessageDisplay;

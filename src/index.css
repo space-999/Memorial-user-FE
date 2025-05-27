@@ -1,0 +1,153 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 252 252;
+    --foreground: 30 30 30;
+
+    --card: 255 255 255;
+    --card-foreground: 30 30 30;
+
+    --popover: 255 255 255;
+    --popover-foreground: 30 30 30;
+
+    --primary: 244 114 182;
+    --primary-foreground: 255 255 255;
+
+    --secondary: 252 231 243;
+    --secondary-foreground: 124 58 237;
+
+    --muted: 248 245 245;
+    --muted-foreground: 115 115 115;
+
+    --accent: 251 207 232;
+    --accent-foreground: 124 58 237;
+
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+
+    --border: 229 229 229;
+    --input: 240 240 240;
+    --ring: 244 114 182;
+
+    --radius: 1rem;
+
+    --sidebar-background: 255 252 252;
+    --sidebar-foreground: 30 30 30;
+    --sidebar-primary: 244 114 182;
+    --sidebar-primary-foreground: 255 255 255;
+    --sidebar-accent: 252 231 243;
+    --sidebar-accent-foreground: 124 58 237;
+    --sidebar-border: 229 229 229;
+    --sidebar-ring: 244 114 182;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-pink-50/30 via-rose-50/20 to-pink-100/30 text-foreground;
+    font-family: 'Inter', 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    background-attachment: fixed;
+    font-feature-settings: 'cv11', 'ss01';
+    font-optical-sizing: auto;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .flower-message {
+    @apply bg-gradient-to-br from-rose-100/80 to-pink-200/60 border border-rose-200/50 backdrop-blur-sm;
+    box-shadow: 0 8px 32px rgba(251, 113, 133, 0.1);
+  }
+  
+  .leaf-message {
+    @apply bg-gradient-to-br from-emerald-100/80 to-green-200/60 border border-emerald-200/50 backdrop-blur-sm;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1);
+  }
+
+  .flower-shape-message {
+    @apply relative;
+  }
+
+  .leaf-shape-message {
+    @apply relative;
+  }
+
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/20 border border-white/30;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-input {
+    @apply bg-white/90 backdrop-blur-md border border-pink-200/50 rounded-full shadow-lg hover:shadow-xl transition-all duration-300;
+    box-shadow: 0 10px 40px rgba(244, 114, 182, 0.1);
+  }
+
+  .heart-button {
+    @apply bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white font-medium rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
+    box-shadow: 0 8px 25px rgba(244, 114, 182, 0.3);
+  }
+
+  .message-container {
+    @apply relative backdrop-blur-sm bg-gradient-to-br from-white/40 to-pink-50/30 rounded-3xl border border-white/20;
+    box-shadow: 0 20px 60px rgba(244, 114, 182, 0.1);
+  }
+
+  /* 2025년 트렌드 텍스트 그라디언트 */
+  .gradient-text {
+    @apply bg-gradient-to-r from-pink-600 via-rose-600 to-pink-700 bg-clip-text text-transparent;
+    font-family: 'Inter', 'Pretendard Variable', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle-gradient {
+    @apply bg-gradient-to-r from-gray-600 to-gray-700 bg-clip-text text-transparent;
+    font-family: 'Inter', 'Pretendard Variable', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #f472b6, #ec4899);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #ec4899, #db2777);
+}
+
+/* 선택 효과 */
+::selection {
+  background: rgba(244, 114, 182, 0.2);
+  color: inherit;
+}
+
+/* 포커스 효과 개선 */
+*:focus-visible {
+  outline: 2px solid rgb(244, 114, 182);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
