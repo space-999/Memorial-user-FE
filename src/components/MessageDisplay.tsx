@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FlowerMessage, LeafMessage } from '@/types/memorial';
 import { Heart, Sparkles } from 'lucide-react';
 
@@ -46,46 +46,73 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   onMessageLeave 
 }) => {
   const [hoveredMessage, setHoveredMessage] = useState<{message: string, date: string} | null>(null);
+  const [newItemIds, setNewItemIds] = useState<Set<string>>(new Set());
   
   // 실제 데이터가 없으면 샘플 데이터 사용
   const displayFlowers = flowers.length > 0 ? flowers : sampleFlowers;
   const displayLeaves = leaves.length > 0 ? leaves : sampleLeaves;
 
+  // 새로운 아이템 감지 및 5초 후 강조 제거
+  useEffect(() => {
+    const currentFlowerIds = new Set(displayFlowers.map(f => `flower-${f.id}`));
+    const currentLeafIds = new Set(displayLeaves.map(l => `leaf-${l.id}`));
+    const allCurrentIds = new Set([...currentFlowerIds, ...currentLeafIds]);
+    
+    // 새로운 아이템들 찾기
+    const newIds = new Set<string>();
+    allCurrentIds.forEach(id => {
+      if (!newItemIds.has(id)) {
+        newIds.add(id);
+      }
+    });
+
+    if (newIds.size > 0) {
+      setNewItemIds(prev => new Set([...prev, ...newIds]));
+      
+      // 5초 후 강조 제거
+      setTimeout(() => {
+        setNewItemIds(prev => {
+          const updated = new Set(prev);
+          newIds.forEach(id => updated.delete(id));
+          return updated;
+        });
+      }, 5000);
+    }
+  }, [displayFlowers.length, displayLeaves.length]);
+
   console.log('Display flowers:', displayFlowers);
   console.log('Display leaves:', displayLeaves);
+
+  // 랜덤 시드를 사용한 일관된 랜덤 배치
+  const getRandomValue = (seed: number, min: number, max: number) => {
+    const x = Math.sin(seed) * 10000;
+    return min + (x - Math.floor(x)) * (max - min);
+  };
+
+  // 꽃 메시지들을 랜덤하게 배치
+  const getFlowerPosition = (index: number, id: number) => {
+    if (displayFlowers.length === 1) return { x: 50, y: 50 };
+    
+    const seed = id * 137.508 + index * 73.856;
+    const x = getRandomValue(seed, 20, 80);
+    const y = getRandomValue(seed + 1000, 20, 80);
+    
+    return { x, y };
+  };
+
+  // 나뭇잎을 랜덤하게 배치
+  const getLeafPosition = (index: number, id: number) => {
+    const seed = id * 239.417 + index * 91.234;
+    const x = getRandomValue(seed, 15, 85);
+    const y = getRandomValue(seed + 2000, 15, 85);
+    
+    return { x, y };
+  };
 
   // 나뭇잎마다 고유한 랜덤 회전값을 생성하는 함수
   const getLeafRotation = (id: number) => {
     const seed = id * 137.508;
     return (seed % 360) - 180;
-  };
-
-  // 꽃 메시지들을 원형으로 배치
-  const getFlowerPosition = (index: number, total: number) => {
-    if (total === 1) return { x: 50, y: 50 };
-    
-    const angle = (index * 2 * Math.PI) / total;
-    const radius = 22;
-    const x = 50 + radius * Math.cos(angle);
-    const y = 50 + radius * Math.sin(angle);
-    
-    return { 
-      x: Math.max(15, Math.min(85, x)), 
-      y: Math.max(15, Math.min(85, y)) 
-    };
-  };
-
-  // 나뭇잎을 더 자연스럽게 분산 배치
-  const getLeafPosition = (index: number, total: number) => {
-    const angle = (index * 2 * Math.PI) / total + Math.PI / 4;
-    const radius = 32;
-    const x = 50 + radius * Math.cos(angle);
-    const y = 50 + radius * Math.sin(angle);
-    
-    return { 
-      x: Math.max(10, Math.min(90, x)), 
-      y: Math.max(10, Math.min(90, y)) 
-    };
   };
 
   const handleItemHover = (item: FlowerMessage | LeafMessage) => {
@@ -104,7 +131,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   };
 
   return (
-    <div className="message-container w-full h-[400px] relative overflow-hidden">
+    <div className="message-container w-full h-[500px] relative overflow-hidden">
       {/* 배경 장식 요소들 */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-xl animate-gentle-float"></div>
@@ -115,8 +142,10 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
       <div className="absolute inset-0 p-6 md:p-12">
         {/* 나뭇잎 메시지들 - 꽃보다 뒤에 배치 */}
         {displayLeaves.map((leaf, index) => {
-          const position = getLeafPosition(index, displayLeaves.length);
+          const position = getLeafPosition(index, leaf.id);
           const rotation = getLeafRotation(leaf.id);
+          const isNew = newItemIds.has(`leaf-${leaf.id}`);
+          
           return (
             <div
               key={leaf.id}
@@ -129,11 +158,13 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
             >
               {/* 나뭇잎 모양 메시지 */}
               <div 
-                className="leaf-shape-message cursor-pointer hover:scale-110 transition-all duration-300"
+                className={`leaf-shape-message cursor-pointer hover:scale-110 transition-all duration-300 ${
+                  isNew ? 'animate-glow ring-4 ring-emerald-300/50' : ''
+                }`}
                 onMouseEnter={() => handleItemHover(leaf)}
                 onMouseLeave={handleItemLeave}
               >
-                <div className="relative w-20 h-24">
+                <div className="relative w-24 h-28">
                   {/* 나뭇잎 모양 */}
                   <div 
                     className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80"
@@ -159,7 +190,9 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
 
         {/* 꽃 메시지들 - 나뭇잎보다 앞에 배치 */}
         {displayFlowers.map((flower, index) => {
-          const position = getFlowerPosition(index, displayFlowers.length);
+          const position = getFlowerPosition(index, flower.id);
+          const isNew = newItemIds.has(`flower-${flower.id}`);
+          
           return (
             <div
               key={flower.id}
@@ -172,17 +205,19 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
             >
               {/* 꽃 모양 메시지 */}
               <div 
-                className="flower-shape-message cursor-pointer hover:scale-105 transition-all duration-300"
+                className={`flower-shape-message cursor-pointer hover:scale-105 transition-all duration-300 ${
+                  isNew ? 'animate-glow ring-4 ring-pink-300/50' : ''
+                }`}
                 onMouseEnter={() => handleItemHover(flower)}
                 onMouseLeave={handleItemLeave}
               >
                 {/* 꽃잎들 */}
-                <div className="relative w-28 h-28">
+                <div className="relative w-32 h-32">
                   {/* 5개 꽃잎을 원형으로 배치 */}
                   {[0, 1, 2, 3, 4].map((petalIndex) => (
                     <div
                       key={petalIndex}
-                      className="absolute w-10 h-14 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
+                      className="absolute w-12 h-16 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
                       style={{
                         left: '50%',
                         top: '50%',
@@ -194,8 +229,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
                   ))}
                   
                   {/* 꽃 중앙 */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
-                    <Heart className="w-4 h-4 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
+                    <Heart className="w-5 h-5 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                   </div>
                 </div>
               </div>

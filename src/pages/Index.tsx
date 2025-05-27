@@ -51,7 +51,7 @@ const Index = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background-start to-background-end p-4 text-foreground">
         마음들을 불러오고 있습니다...
-        <Sparkles className="animate-pulse text-accent mt-2 h-8 w-8" />
+        <Sparkles className="animate-pulse text-pink-500 mt-2 h-8 w-8" />
       </div>
     );
   }
@@ -95,11 +95,14 @@ const Index = () => {
                 isLoading={isCreatingFlower}
               />
             </div>
-            <div className="flex justify-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="flex flex-col items-center space-y-3 animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <LeafButton
                 onClick={handleLeafClick}
                 isLoading={isCreatingLeaf}
               />
+              <p className="text-gray-600 text-sm font-body font-light text-center">
+                당신의 마음을 대신할, 따뜻한 메시지를 나뭇잎처럼 띄워보세요.
+              </p>
             </div>
           </div>
         </section>
@@ -131,26 +134,6 @@ const Index = () => {
             )}
           </div>
         </section>
-
-        {/* 호버시 메시지 표시 */}
-        {selectedMessage && hoveredPosition && (
-          <div 
-            className="fixed pointer-events-none z-[9999] transform -translate-x-1/2 -translate-y-full"
-            style={{
-              left: `${hoveredPosition.x}px`,
-              top: `${hoveredPosition.y}px`,
-            }}
-          >
-            <div className="bg-white/95 backdrop-blur-sm border border-pink-200/50 rounded-lg px-4 py-2 shadow-xl max-w-xs">
-              <p className="text-gray-800 text-sm font-medium mb-1">
-                {selectedMessage}
-              </p>
-              <p className="text-xs text-gray-500 opacity-80 font-light">
-                {selectedDate}
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* 푸터 */}
         <footer className="relative z-10 text-center py-6 md:py-8 px-4">

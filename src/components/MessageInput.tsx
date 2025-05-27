@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Send, Heart } from 'lucide-react';
 
 interface MessageInputProps {
-  onSubmit: (message: string) => Promise<void>; // Promise<void>로 변경하여 비동기 처리 명시
+  onSubmit: (message: string) => Promise<void>;
   isLoading: boolean;
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({ onSubmit, isLoading }) => {
   const [message, setMessage] = useState('');
-  const [localError, setLocalError] = useState<string | null>(null); // 입력값 검증 등 로컬 에러
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +27,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSubmit, isLoading }) => {
           <Heart className="w-6 h-6 text-pink-500 ml-4 flex-shrink-0 animate-gentle-float" />
           <input
             type="text"
-            placeholder="소중한 마음을 글로 남겨주세요..."
+            placeholder="소중한 마음을 담아 꽃으로 활짝 피워주세요"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             className="flex-1 px-6 py-4 bg-transparent border-none outline-none text-gray-800 placeholder-gray-500 text-lg font-body"
