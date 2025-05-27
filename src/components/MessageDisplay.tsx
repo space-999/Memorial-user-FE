@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { FlowerMessage, LeafMessage } from '@/types/memorial';
 import { Heart, Sparkles } from 'lucide-react';
 
@@ -45,6 +45,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   onMessageHover, 
   onMessageLeave 
 }) => {
+  const [hoveredMessage, setHoveredMessage] = useState<{message: string, date: string} | null>(null);
+  
   // 실제 데이터가 없으면 샘플 데이터 사용
   const displayFlowers = flowers.length > 0 ? flowers : sampleFlowers;
   const displayLeaves = leaves.length > 0 ? leaves : sampleLeaves;
@@ -86,7 +88,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
     };
   };
 
-  const handleItemHover = (item: FlowerMessage | LeafMessage, event: React.MouseEvent) => {
+  const handleItemHover = (item: FlowerMessage | LeafMessage) => {
     const message = item.content || (item as any).message || '메시지가 없습니다';
     const date = new Date(item.createdAt).toLocaleDateString('ko-KR', {
       month: 'short',
@@ -94,11 +96,15 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
       hour: '2-digit',
       minute: '2-digit'
     });
-    onMessageHover(message, date, event);
+    setHoveredMessage({ message, date });
+  };
+
+  const handleItemLeave = () => {
+    setHoveredMessage(null);
   };
 
   return (
-    <div className="message-container w-full h-[500px] relative overflow-hidden">
+    <div className="message-container w-full h-[400px] relative overflow-hidden">
       {/* 배경 장식 요소들 */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-xl animate-gentle-float"></div>
@@ -124,10 +130,10 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
               {/* 나뭇잎 모양 메시지 */}
               <div 
                 className="leaf-shape-message cursor-pointer hover:scale-110 transition-all duration-300"
-                onMouseEnter={(e) => handleItemHover(leaf, e)}
-                onMouseLeave={onMessageLeave}
+                onMouseEnter={() => handleItemHover(leaf)}
+                onMouseLeave={handleItemLeave}
               >
-                <div className="relative w-16 h-20">
+                <div className="relative w-20 h-24">
                   {/* 나뭇잎 모양 */}
                   <div 
                     className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80"
@@ -142,7 +148,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
                     
                     {/* 나뭇잎 중앙 아이콘 */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                      <Sparkles className="w-3 h-3 text-emerald-700" />
+                      <Sparkles className="w-4 h-4 text-emerald-700" />
                     </div>
                   </div>
                 </div>
@@ -167,16 +173,16 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
               {/* 꽃 모양 메시지 */}
               <div 
                 className="flower-shape-message cursor-pointer hover:scale-105 transition-all duration-300"
-                onMouseEnter={(e) => handleItemHover(flower, e)}
-                onMouseLeave={onMessageLeave}
+                onMouseEnter={() => handleItemHover(flower)}
+                onMouseLeave={handleItemLeave}
               >
                 {/* 꽃잎들 */}
-                <div className="relative w-24 h-24">
+                <div className="relative w-28 h-28">
                   {/* 5개 꽃잎을 원형으로 배치 */}
                   {[0, 1, 2, 3, 4].map((petalIndex) => (
                     <div
                       key={petalIndex}
-                      className="absolute w-8 h-12 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
+                      className="absolute w-10 h-14 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
                       style={{
                         left: '50%',
                         top: '50%',
@@ -188,8 +194,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
                   ))}
                   
                   {/* 꽃 중앙 */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
-                    <Heart className="w-3 h-3 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
+                    <Heart className="w-4 h-4 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                   </div>
                 </div>
               </div>
@@ -197,6 +203,26 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
           );
         })}
       </div>
+
+      {/* 호버 시 메시지 모달 - 중앙 표시 */}
+      {hoveredMessage && (
+        <>
+          {/* 어두운 오버레이 */}
+          <div className="fixed inset-0 bg-black/50 z-[9998] pointer-events-none" />
+          
+          {/* 중앙 메시지 모달 */}
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] pointer-events-none">
+            <div className="bg-white/95 backdrop-blur-sm border border-pink-200/50 rounded-xl px-8 py-6 shadow-2xl max-w-md">
+              <p className="text-gray-800 text-lg font-medium mb-3 text-center leading-relaxed">
+                {hoveredMessage.message}
+              </p>
+              <p className="text-sm text-gray-500 opacity-80 font-light text-center">
+                {hoveredMessage.date}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* 상태 표시 - 우측 하단 */}
       <div className="absolute bottom-6 right-6 z-30">
