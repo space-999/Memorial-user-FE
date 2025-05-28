@@ -100,7 +100,7 @@ const Index = () => {
                 onClick={handleLeafClick}
                 isLoading={isCreatingLeaf}
               />
-              <p className="text-gray-600 text-xl md:text-2xl font-body text-center max-w-md">
+              <p className="text-lg md:text-xl subtitle-gradient font-body font-light leading-relaxed">
                 당신의 마음을 대신할, 따뜻한 메시지를 나뭇잎처럼 띄워보세요.
               </p>
             </div>

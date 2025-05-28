@@ -52,7 +52,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSubmit, isLoading }) => {
           </Button>
         </div>
         <div className="text-sm text-gray-500 text-right mt-2 pr-4 font-body font-light">
-          {message.length}/200자
+          {message.length}/50자
         </div>
       </div>
     </form>

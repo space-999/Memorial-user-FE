@@ -103,7 +103,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   };
 
   return (
-    <div className="message-container w-[600px] h-[600px] relative overflow-hidden">
+    <div className="message-container w-[650px] h-[600px] relative overflow-hidden">
       {/* 배경 장식 요소들 */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-xl animate-gentle-float"></div>
