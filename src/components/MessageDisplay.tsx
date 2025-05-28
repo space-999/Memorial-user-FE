@@ -46,59 +46,20 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   onMessageLeave 
 }) => {
   const [hoveredMessage, setHoveredMessage] = useState<{message: string, date: string} | null>(null);
-  const [newItemIds, setNewItemIds] = useState<Set<string>>(new Set());
-  const [previousFlowerCount, setPreviousFlowerCount] = useState(0);
-  const [previousLeafCount, setPreviousLeafCount] = useState(0);
   
   // 실제 데이터가 없으면 샘플 데이터 사용
   const displayFlowers = flowers.length > 0 ? flowers : sampleFlowers;
   const displayLeaves = leaves.length > 0 ? leaves : sampleLeaves;
 
-  // 새로운 아이템 감지 및 5초 후 강조 제거
-  useEffect(() => {
-    const newFlowerIds = new Set<string>();
-    const newLeafIds = new Set<string>();
-
-    // 새로운 꽃 메시지 감지
-    if (displayFlowers.length > previousFlowerCount) {
-      const newFlowers = displayFlowers.slice(previousFlowerCount);
-      newFlowers.forEach(flower => newFlowerIds.add(`flower-${flower.id}`));
-    }
-
-    // 새로운 나뭇잎 메시지 감지
-    if (displayLeaves.length > previousLeafCount) {
-      const newLeaves = displayLeaves.slice(previousLeafCount);
-      newLeaves.forEach(leaf => newLeafIds.add(`leaf-${leaf.id}`));
-    }
-
-    const allNewIds = new Set([...newFlowerIds, ...newLeafIds]);
-
-    if (allNewIds.size > 0) {
-      setNewItemIds(prev => new Set([...prev, ...allNewIds]));
-      
-      // 5초 후 강조 제거
-      setTimeout(() => {
-        setNewItemIds(prev => {
-          const updated = new Set(prev);
-          allNewIds.forEach(id => updated.delete(id));
-          return updated;
-        });
-      }, 5000);
-    }
-
-    setPreviousFlowerCount(displayFlowers.length);
-    setPreviousLeafCount(displayLeaves.length);
-  }, [displayFlowers.length, displayLeaves.length, previousFlowerCount, previousLeafCount]);
-
   console.log('Display flowers:', displayFlowers);
   console.log('Display leaves:', displayLeaves);
 
-  // 꽃을 원형으로 배치하는 함수
+  // 꽃을 원형으로 배치하는 함수 (중앙)
   const getFlowerPosition = (index: number, total: number) => {
     if (total === 1) return { x: 50, y: 50 };
     
     const angle = (index * 360) / total;
-    const radius = 35; // 중심에서의 거리
+    const radius = 25; // 중심에서의 거리
     const centerX = 50;
     const centerY = 50;
     
@@ -111,7 +72,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   // 나뭇잎을 꽃 바깥 원형으로 배치하는 함수
   const getLeafPosition = (index: number, total: number) => {
     const angle = (index * 360) / total;
-    const radius = 45; // 꽃보다 바깥쪽
+    const radius = 40; // 꽃보다 바깥쪽
     const centerX = 50;
     const centerY = 50;
     
@@ -156,7 +117,6 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
         {displayLeaves.map((leaf, index) => {
           const position = getLeafPosition(index, displayLeaves.length);
           const rotation = getLeafRotation(leaf.id);
-          const isNew = newItemIds.has(`leaf-${leaf.id}`);
           
           return (
             <div
@@ -170,16 +130,11 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
             >
               {/* 나뭇잎 모양 메시지 */}
               <div 
-                className={`leaf-shape-message cursor-pointer hover:scale-110 transition-all duration-300 ${
-                  isNew ? 'animate-pulse' : ''
-                }`}
+                className="leaf-shape-message cursor-pointer hover:scale-110 transition-all duration-300"
                 onMouseEnter={() => handleItemHover(leaf)}
                 onMouseLeave={handleItemLeave}
-                style={{
-                  filter: isNew ? 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))' : 'none'
-                }}
               >
-                <div className="relative w-28 h-32">
+                <div className="relative w-32 h-36">
                   {/* 나뭇잎 모양 */}
                   <div 
                     className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80"
@@ -206,7 +161,6 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
         {/* 꽃 메시지들 - 나뭇잎보다 앞에 배치 */}
         {displayFlowers.map((flower, index) => {
           const position = getFlowerPosition(index, displayFlowers.length);
-          const isNew = newItemIds.has(`flower-${flower.id}`);
           
           return (
             <div
@@ -220,22 +174,17 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
             >
               {/* 꽃 모양 메시지 */}
               <div 
-                className={`flower-shape-message cursor-pointer hover:scale-105 transition-all duration-300 ${
-                  isNew ? 'animate-pulse' : ''
-                }`}
+                className="flower-shape-message cursor-pointer hover:scale-105 transition-all duration-300"
                 onMouseEnter={() => handleItemHover(flower)}
                 onMouseLeave={handleItemLeave}
-                style={{
-                  filter: isNew ? 'drop-shadow(0 0 10px rgba(251, 113, 133, 0.6))' : 'none'
-                }}
               >
                 {/* 꽃잎들 */}
-                <div className="relative w-36 h-36">
+                <div className="relative w-40 h-40">
                   {/* 5개 꽃잎을 원형으로 배치 */}
                   {[0, 1, 2, 3, 4].map((petalIndex) => (
                     <div
                       key={petalIndex}
-                      className="absolute w-14 h-18 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
+                      className="absolute w-16 h-20 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
                       style={{
                         left: '50%',
                         top: '50%',
@@ -247,8 +196,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
                   ))}
                   
                   {/* 꽃 중앙 */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
-                    <Heart className="w-6 h-6 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
+                    <Heart className="w-7 h-7 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                   </div>
                 </div>
               </div>
