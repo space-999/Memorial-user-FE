@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FlowerMessage, LeafMessage } from '@/types/memorial';
 import { Heart, Sparkles } from 'lucide-react';
@@ -54,12 +53,12 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   console.log('Display flowers:', displayFlowers);
   console.log('Display leaves:', displayLeaves);
 
-  // 꽃을 원형으로 배치하는 함수 (내부 원)
+  // 꽃을 원형으로 배치하는 함수 (나뭇잎 근처로 확장)
   const getFlowerPosition = (index: number, total: number) => {
     if (total === 1) return { x: 50, y: 50 };
     
     const angle = (index * 360) / total;
-    const radius = 15; // 더 작은 내부 원
+    const radius = 25; // 기존 15에서 25로 확장
     const centerX = 50;
     const centerY = 50;
     
@@ -158,7 +157,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
           );
         })}
 
-        {/* 꽃 메시지들 - 중앙에 원형으로 배치 */}
+        {/* 꽃 메시지들 - 확장된 원형으로 배치 */}
         {displayFlowers.map((flower, index) => {
           const position = getFlowerPosition(index, displayFlowers.length);
           
@@ -206,24 +205,18 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
         })}
       </div>
 
-      {/* 호버 시 메시지 모달 - 중앙 표시 */}
+      {/* 호버 시 메시지 모달 - 중앙 표시, 어두운 오버레이 제거 */}
       {hoveredMessage && (
-        <>
-          {/* 어두운 오버레이 */}
-          <div className="fixed inset-0 bg-black/50 z-[9998] pointer-events-none" />
-          
-          {/* 중앙 메시지 모달 */}
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] pointer-events-none">
-            <div className="bg-white/95 backdrop-blur-sm border border-pink-200/50 rounded-xl px-8 py-6 shadow-2xl max-w-md">
-              <p className="text-gray-800 text-lg font-medium mb-3 text-center leading-relaxed">
-                {hoveredMessage.message}
-              </p>
-              <p className="text-sm text-gray-500 opacity-80 font-light text-center">
-                {hoveredMessage.date}
-              </p>
-            </div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] pointer-events-none">
+          <div className="bg-white/95 backdrop-blur-sm border border-pink-200/50 rounded-xl px-6 py-4 shadow-2xl max-w-[200px]">
+            <p className="text-gray-800 text-base font-medium mb-2 text-center leading-relaxed">
+              {hoveredMessage.message}
+            </p>
+            <p className="text-xs text-gray-500 opacity-80 font-light text-center">
+              {hoveredMessage.date}
+            </p>
           </div>
-        </>
+        </div>
       )}
 
       {/* 상태 표시 - 우측 하단 */}
