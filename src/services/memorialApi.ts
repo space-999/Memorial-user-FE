@@ -1,6 +1,7 @@
 
 import axios from 'axios';
 import { FlowerMessage, LeafMessage, BackendApiResponse } from '@/types/memorial';
+import { Content } from 'vaul';
 
 const BASE_URL = 'http://localhost:8081/api/v1';
 
@@ -79,7 +80,7 @@ export const memorialApi = {
     try {
       console.log('Creating flower with message:', message);
       const response = await api.post<BackendApiResponse<FlowerMessage>>('/flowers', {
-        message: message
+        content: message
       });
       console.log('Create flower response:', response.data);
       return response.data;
