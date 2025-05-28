@@ -100,7 +100,7 @@ const Index = () => {
                 onClick={handleLeafClick}
                 isLoading={isCreatingLeaf}
               />
-              <p className="text-gray-600 text-base md:text-lg font-body font-semibold text-center max-w-md">
+              <p className="text-gray-600 text-xl md:text-2xl font-body text-center max-w-md">
                 당신의 마음을 대신할, 따뜻한 메시지를 나뭇잎처럼 띄워보세요.
               </p>
             </div>
@@ -109,7 +109,7 @@ const Index = () => {
 
         {/* 메시지 표시 섹션 */}
         <section className="relative z-10 px-4 pb-8 md:pb-12">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-5xl mx-auto flex justify-center">
             {isLoadingInitial ? (
               <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center space-y-6">
