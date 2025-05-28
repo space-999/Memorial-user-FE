@@ -95,12 +95,12 @@ const Index = () => {
                 isLoading={isCreatingFlower}
               />
             </div>
-            <div className="flex flex-col items-center space-y-3 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="flex flex-col items-center space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <LeafButton
                 onClick={handleLeafClick}
                 isLoading={isCreatingLeaf}
               />
-              <p className="text-gray-600 text-sm font-body font-light text-center">
+              <p className="text-gray-600 text-base md:text-lg font-body font-semibold text-center max-w-md">
                 당신의 마음을 대신할, 따뜻한 메시지를 나뭇잎처럼 띄워보세요.
               </p>
             </div>

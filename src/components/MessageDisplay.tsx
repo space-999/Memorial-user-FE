@@ -54,12 +54,12 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   console.log('Display flowers:', displayFlowers);
   console.log('Display leaves:', displayLeaves);
 
-  // 꽃을 원형으로 배치하는 함수 (중앙)
+  // 꽃을 원형으로 배치하는 함수 (내부 원)
   const getFlowerPosition = (index: number, total: number) => {
     if (total === 1) return { x: 50, y: 50 };
     
     const angle = (index * 360) / total;
-    const radius = 25; // 중심에서의 거리
+    const radius = 15; // 더 작은 내부 원
     const centerX = 50;
     const centerY = 50;
     
@@ -69,10 +69,10 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
     return { x, y };
   };
 
-  // 나뭇잎을 꽃 바깥 원형으로 배치하는 함수
+  // 나뭇잎을 꽃 주변에 원형으로 촘촘히 배치하는 함수 (외부 원)
   const getLeafPosition = (index: number, total: number) => {
     const angle = (index * 360) / total;
-    const radius = 40; // 꽃보다 바깥쪽
+    const radius = 35; // 꽃보다 바깥쪽, 화관처럼
     const centerX = 50;
     const centerY = 50;
     
@@ -104,7 +104,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   };
 
   return (
-    <div className="message-container w-full h-[480px] relative overflow-hidden">
+    <div className="message-container w-full h-[600px] relative overflow-hidden">
       {/* 배경 장식 요소들 */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-xl animate-gentle-float"></div>
@@ -112,8 +112,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
         <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-gradient-to-br from-emerald-200 to-teal-200 rounded-full blur-lg animate-gentle-float" style={{ animationDelay: '4s' }}></div>
       </div>
 
-      <div className="absolute inset-0 p-6 md:p-12">
-        {/* 나뭇잎 메시지들 - 꽃보다 뒤에 배치 */}
+      <div className="absolute inset-0 p-6 md:p-16">
+        {/* 나뭇잎 메시지들 - 꽃 주변에 화관처럼 배치 */}
         {displayLeaves.map((leaf, index) => {
           const position = getLeafPosition(index, displayLeaves.length);
           const rotation = getLeafRotation(leaf.id);
@@ -134,7 +134,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
                 onMouseEnter={() => handleItemHover(leaf)}
                 onMouseLeave={handleItemLeave}
               >
-                <div className="relative w-32 h-36">
+                <div className="relative w-24 h-28">
                   {/* 나뭇잎 모양 */}
                   <div 
                     className="w-full h-full bg-gradient-to-br from-emerald-200/90 to-green-300/80"
@@ -145,11 +145,11 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
                     }}
                   >
                     {/* 나뭇잎 줄기 */}
-                    <div className="absolute top-1/2 left-1/2 w-0.5 h-12 bg-green-400/60 transform -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></div>
+                    <div className="absolute top-1/2 left-1/2 w-0.5 h-8 bg-green-400/60 transform -translate-x-1/2 -translate-y-1/2 rotate-45 pointer-events-none"></div>
                     
                     {/* 나뭇잎 중앙 아이콘 */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                      <Sparkles className="w-5 h-5 text-emerald-700" />
+                      <Sparkles className="w-4 h-4 text-emerald-700" />
                     </div>
                   </div>
                 </div>
@@ -158,7 +158,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
           );
         })}
 
-        {/* 꽃 메시지들 - 나뭇잎보다 앞에 배치 */}
+        {/* 꽃 메시지들 - 중앙에 원형으로 배치 */}
         {displayFlowers.map((flower, index) => {
           const position = getFlowerPosition(index, displayFlowers.length);
           
@@ -179,12 +179,12 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
                 onMouseLeave={handleItemLeave}
               >
                 {/* 꽃잎들 */}
-                <div className="relative w-40 h-40">
+                <div className="relative w-32 h-32">
                   {/* 5개 꽃잎을 원형으로 배치 */}
                   {[0, 1, 2, 3, 4].map((petalIndex) => (
                     <div
                       key={petalIndex}
-                      className="absolute w-16 h-20 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
+                      className="absolute w-12 h-16 bg-gradient-to-br from-rose-200/90 to-pink-300/80 rounded-full transform origin-bottom"
                       style={{
                         left: '50%',
                         top: '50%',
@@ -196,8 +196,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
                   ))}
                   
                   {/* 꽃 중앙 */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
-                    <Heart className="w-7 h-7 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-amber-200 to-orange-200 rounded-full border-2 border-orange-300/50 pointer-events-none">
+                    <Heart className="w-5 h-5 text-rose-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                   </div>
                 </div>
               </div>
