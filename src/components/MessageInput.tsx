@@ -22,7 +22,8 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSubmit, isLoading }) => {
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="relative max-w-3xl mx-auto">
+      {/* 검색창 가로 길이 조정: max-w-3xl에서 50px 감소 적용 (기존: max-w-3xl ≈ 768px, 수정: 718px) */}
+      <div className="relative mx-auto" style={{ maxWidth: 'calc(48rem - 50px)' }}>
         <div className="search-input flex items-center p-2">
           <Heart className="w-6 h-6 text-pink-500 ml-4 flex-shrink-0 animate-gentle-float" />
           <input
