@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MessageInput from '@/components/MessageInput';
 import LeafButton from '@/components/LeafButton';
@@ -11,6 +10,7 @@ const Index = () => {
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [hoveredPosition, setHoveredPosition] = useState<{ x: number; y: number } | null>(null);
+  const [newlyCreatedMessage, setNewlyCreatedMessage] = useState<{ content: string; type: 'flower' | 'leaf'; timestamp: number } | null>(null);
   
   const {
     flowers,
@@ -25,10 +25,29 @@ const Index = () => {
 
   const handleFlowerSubmit = async (message: string) => {
     await createFlower(message);
+    // 새로 생성된 꽃 메시지를 10초간 표시
+    setNewlyCreatedMessage({
+      content: message,
+      type: 'flower',
+      timestamp: Date.now()
+    });
   };
 
   const handleLeafClick = async () => {
     await createLeaf();
+    // 새로 생성된 나뭇잎 메시지를 10초간 표시
+    const leafMessages = [
+      "감사합니다", "고마운 마음", "기억하겠습니다", "존경합니다", "마음을 전합니다",
+      "따뜻한 위로", "소중한 선물", "아름다운 마음", "깊은 감동", "진심 어린 감사",
+      "영원한 기억", "고귀한 뜻", "사랑합니다", "축복합니다", "평안하세요"
+    ];
+    const randomMessage = leafMessages[Math.floor(Math.random() * leafMessages.length)];
+    
+    setNewlyCreatedMessage({
+      content: randomMessage,
+      type: 'leaf',
+      timestamp: Date.now()
+    });
   };
 
   const handleMessageHover = (message: string, date: string, event: React.MouseEvent) => {
@@ -129,6 +148,7 @@ const Index = () => {
                   leaves={leaves} 
                   onMessageHover={handleMessageHover}
                   onMessageLeave={handleMessageLeave}
+                  newlyCreatedMessage={newlyCreatedMessage}
                 />
               </div>
             )}

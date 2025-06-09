@@ -7,6 +7,7 @@ interface MessageDisplayProps {
   leaves: LeafMessage[];
   onMessageHover: (message: string, date: string, event: React.MouseEvent) => void;
   onMessageLeave: () => void;
+  newlyCreatedMessage?: { content: string; type: 'flower' | 'leaf'; timestamp: number } | null;
 }
 
 // 샘플 데이터 - 10개 꽃 메시지
@@ -36,15 +37,17 @@ const sampleLeaves: LeafMessage[] = Array.from({ length: 15 }, (_, i) => ({
     "영원한 기억", "고귀한 뜻", "사랑합니다", "축복합니다", "평안하세요"
   ][i],
   createdAt: new Date(Date.now() - i * 1000 * 60 * 45).toISOString()
-}));
+});
 
 const MessageDisplay: React.FC<MessageDisplayProps> = ({ 
   flowers, 
   leaves, 
   onMessageHover, 
-  onMessageLeave 
+  onMessageLeave,
+  newlyCreatedMessage
 }) => {
   const [hoveredMessage, setHoveredMessage] = useState<{message: string, date: string} | null>(null);
+  const [showNewMessage, setShowNewMessage] = useState<{message: string, type: 'flower' | 'leaf'} | null>(null);
   
   // 실제 데이터가 없으면 샘플 데이터 사용
   const displayFlowers = flowers.length > 0 ? flowers : sampleFlowers;
@@ -52,6 +55,22 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
 
   console.log('Display flowers:', displayFlowers);
   console.log('Display leaves:', displayLeaves);
+
+  // 새로 생성된 메시지를 10초간 표시
+  useEffect(() => {
+    if (newlyCreatedMessage) {
+      setShowNewMessage({
+        message: newlyCreatedMessage.content,
+        type: newlyCreatedMessage.type
+      });
+      
+      const timer = setTimeout(() => {
+        setShowNewMessage(null);
+      }, 10000); // 10초
+
+      return () => clearTimeout(timer);
+    }
+  }, [newlyCreatedMessage]);
 
   // 꽃을 원형으로 배치하는 함수 (나뭇잎 근처로 확장)
   const getFlowerPosition = (index: number, total: number) => {
@@ -103,7 +122,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
   };
 
   return (
-    <div className="message-container w-[650px] h-[600px] relative overflow-hidden">
+    <div className="message-container w-[600px] h-[600px] relative overflow-hidden">
       {/* 배경 장식 요소들 */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-orange-200 to-amber-200 rounded-full blur-xl animate-gentle-float"></div>
@@ -205,8 +224,29 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
         })}
       </div>
 
-      {/* 호버 시 메시지 모달 - 중앙 표시, 어두운 오버레이 제거 */}
-      {hoveredMessage && (
+      {/* 새로 생성된 메시지 중앙 표시 */}
+      {showNewMessage && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[10000] pointer-events-none animate-fade-in">
+          <div className="bg-white/95 backdrop-blur-sm border-2 border-pink-300/70 rounded-2xl px-8 py-6 shadow-2xl max-w-[280px]">
+            <div className="flex items-center justify-center mb-3">
+              {showNewMessage.type === 'flower' ? (
+                <Heart className="w-6 h-6 text-rose-500 animate-gentle-float" />
+              ) : (
+                <Sparkles className="w-6 h-6 text-emerald-500 animate-gentle-float" />
+              )}
+            </div>
+            <p className="text-gray-800 text-lg font-medium text-center leading-relaxed">
+              {showNewMessage.message}
+            </p>
+            <div className="mt-4 text-center">
+              <div className="w-8 h-1 bg-gradient-to-r from-pink-300 to-emerald-300 rounded-full mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 호버 시 메시지 모달 - 중앙 표시 */}
+      {hoveredMessage && !showNewMessage && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] pointer-events-none">
           <div className="bg-white/95 backdrop-blur-sm border border-pink-200/50 rounded-xl px-6 py-4 shadow-2xl max-w-[200px]">
             <p className="text-gray-800 text-base font-medium mb-2 text-center leading-relaxed">
