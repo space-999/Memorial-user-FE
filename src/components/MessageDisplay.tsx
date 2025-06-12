@@ -37,7 +37,7 @@ const sampleLeaves: LeafMessage[] = Array.from({ length: 15 }, (_, i) => ({
     "영원한 기억", "고귀한 뜻", "사랑합니다", "축복합니다", "평안하세요"
   ][i],
   createdAt: new Date(Date.now() - i * 1000 * 60 * 45).toISOString()
-}));
+});
 
 const MessageDisplay: React.FC<MessageDisplayProps> = ({ 
   flowers, 
@@ -226,8 +226,8 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({
 
       {/* 새로 생성된 메시지 중앙 표시 */}
       {showNewMessage && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[10000] pointer-events-none animate-fade-in">
-          <div className="bg-white/95 backdrop-blur-sm border-2 border-pink-300/70 rounded-2xl px-8 py-6 shadow-2xl max-w-[280px]">
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[10000] pointer-events-none">
+          <div className="bg-white/95 backdrop-blur-sm border-2 border-pink-300/70 rounded-2xl px-8 py-6 shadow-2xl max-w-[280px] animate-fade-in">
             <div className="flex items-center justify-center mb-3">
               {showNewMessage.type === 'flower' ? (
                 <Heart className="w-6 h-6 text-rose-500 animate-gentle-float" />

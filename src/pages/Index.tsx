@@ -34,20 +34,29 @@ const Index = () => {
   };
 
   const handleLeafClick = async () => {
-    await createLeaf();
-    // 새로 생성된 나뭇잎 메시지를 10초간 표시
-    const leafMessages = [
-      "감사합니다", "고마운 마음", "기억하겠습니다", "존경합니다", "마음을 전합니다",
-      "따뜻한 위로", "소중한 선물", "아름다운 마음", "깊은 감동", "진심 어린 감사",
-      "영원한 기억", "고귀한 뜻", "사랑합니다", "축복합니다", "평안하세요"
-    ];
-    const randomMessage = leafMessages[Math.floor(Math.random() * leafMessages.length)];
-    
-    setNewlyCreatedMessage({
-      content: randomMessage,
-      type: 'leaf',
-      timestamp: Date.now()
-    });
+    try {
+      const result = await createLeaf();
+      console.log('Create leaf result:', result);
+      
+      // 백엔드에서 반환된 메시지를 사용 (result는 mutation 결과이므로 직접 접근 불가)
+      // 대신 최신 leaves 배열에서 가장 최근 항목을 사용
+      const latestLeaf = leaves[leaves.length - 1];
+      const leafMessage = latestLeaf?.content || "감사합니다"; // 백업 메시지
+      
+      setNewlyCreatedMessage({
+        content: leafMessage,
+        type: 'leaf',
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      console.error('Error creating leaf:', error);
+      // 에러 시에도 기본 메시지 표시
+      setNewlyCreatedMessage({
+        content: "감사합니다",
+        type: 'leaf',
+        timestamp: Date.now()
+      });
+    }
   };
 
   const handleMessageHover = (message: string, date: string, event: React.MouseEvent) => {
