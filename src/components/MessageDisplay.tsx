@@ -37,7 +37,7 @@ const sampleLeaves: LeafMessage[] = Array.from({ length: 15 }, (_, i) => ({
     "영원한 기억", "고귀한 뜻", "사랑합니다", "축복합니다", "평안하세요"
   ][i],
   createdAt: new Date(Date.now() - i * 1000 * 60 * 45).toISOString()
-});
+}));
 
 const MessageDisplay: React.FC<MessageDisplayProps> = ({ 
   flowers, 
