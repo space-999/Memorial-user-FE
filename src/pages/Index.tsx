@@ -1,3 +1,4 @@
+// Index.tsx
 import React, { useState } from 'react';
 import MessageInput from '@/components/MessageInput';
 import LeafButton from '@/components/LeafButton';
@@ -5,11 +6,9 @@ import MessageDisplay from '@/components/MessageDisplay';
 import { useMemorial } from '@/hooks/useMemorial';
 import { Heart, Sparkles } from 'lucide-react';
 import { toast, Toaster } from 'react-hot-toast'; 
+import { FlowerMessage, LeafMessage } from '@/types/memorial'; // FlowerMessage, LeafMessage 타입 임포트
 
 const Index = () => {
-  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [hoveredPosition, setHoveredPosition] = useState<{ x: number; y: number } | null>(null);
   const [newlyCreatedMessage, setNewlyCreatedMessage] = useState<{ content: string; type: 'flower' | 'leaf'; timestamp: number } | null>(null);
   
   const {
@@ -17,63 +16,79 @@ const Index = () => {
     leaves,
     isLoadingInitial,
     error,
-    createFlower,
-    createLeaf,
+    createFlower, // 이제 createFlower는 mutateAsync입니다.
+    createLeaf,   // 이제 createLeaf는 mutateAsync입니다.
     isCreatingFlower,
     isCreatingLeaf,
   } = useMemorial();
 
   const handleFlowerSubmit = async (message: string) => {
-    await createFlower(message);
-    // 새로 생성된 꽃 메시지를 10초간 표시
-    setNewlyCreatedMessage({
-      content: message,
-      type: 'flower',
-      timestamp: Date.now()
-    });
+    try {
+      // createFlower는 BackendApiResponse<FlowerMessage>를 반환합니다.
+      const response = await createFlower(message); 
+      
+      if (response.success && response.data) {
+        setNewlyCreatedMessage({
+          content: response.data.content, // ★★★ 백엔드에서 반환된 꽃 메시지 사용
+          type: 'flower',
+          timestamp: new Date(response.data.createdAt).getTime()
+        });
+      } else {
+        console.warn('꽃 메시지 생성 응답 데이터 형식이 예상과 다릅니다:', response);
+      }
+    } catch (error) {
+      console.error('Error creating flower:', error);
+      // useMemorial 훅에서 이미 토스트 메시지를 처리하므로 여기서는 추가 처리 불필요
+    }
   };
 
   const handleLeafClick = async () => {
     try {
-      const result = await createLeaf();
-      console.log('Create leaf result:', result);
+      // createLeaf는 BackendApiResponse<LeafMessage>를 반환합니다.
+      const response = await createLeaf(); 
       
-      // 백엔드에서 반환된 메시지를 사용 (result는 mutation 결과이므로 직접 접근 불가)
-      // 대신 최신 leaves 배열에서 가장 최근 항목을 사용
-      const latestLeaf = leaves[leaves.length - 1];
-      const leafMessage = latestLeaf?.content || "감사합니다"; // 백업 메시지
-      
-      setNewlyCreatedMessage({
-        content: leafMessage,
-        type: 'leaf',
-        timestamp: Date.now()
-      });
+      console.log('Create leaf response:', response); // 응답 전체를 로그하여 확인
+
+      // response.success가 true이고 response.data가 존재하며 content를 포함하는지 확인
+      if (response.success && response.data && response.data.content) {
+        setNewlyCreatedMessage({
+          content: response.data.content, // ★★★ 백엔드에서 생성된 랜덤 나뭇잎 메시지 사용
+          type: 'leaf',
+          timestamp: new Date(response.data.createdAt).getTime() // 백엔드의 생성 시간 사용
+        });
+        // leaves 배열은 useMemorial 훅의 onSuccess 콜백에서 자동으로 업데이트됩니다.
+      } else {
+        console.warn('나뭇잎 메시지 생성 응답 데이터 형식이 예상과 다릅니다:', response);
+        // 오류 처리 또는 사용자에게 알림
+      }
     } catch (error) {
       console.error('Error creating leaf:', error);
-      // 에러 시에도 기본 메시지 표시
-      setNewlyCreatedMessage({
-        content: "감사합니다",
-        type: 'leaf',
-        timestamp: Date.now()
-      });
+      // useMemorial 훅에서 이미 토스트 메시지를 처리하므로 여기서는 추가 처리 불필요
+      // 에러 시 중앙 메시지 표시를 원한다면 여기에 추가:
+      // setNewlyCreatedMessage({
+      //   content: "마음 전달에 실패했습니다.",
+      //   type: 'leaf',
+      //   timestamp: Date.now()
+      // });
     }
   };
 
+  // MessageDisplay에 마우스 호버/리브 이벤트 핸들러
+  // MessageDisplay 내부에서 호버 메시지 표시 로직을 관리하고 있다면,
+  // 이 상위 컴포넌트의 selectedMessage, selectedDate, hoveredPosition 상태와
+  // 이 핸들러들은 필요 없거나 MessageDisplay 내부로 옮겨지는 것이 좋습니다.
+  // 현재 상태에서는 MessageDisplay에 props로 전달되므로 그대로 유지합니다.
   const handleMessageHover = (message: string, date: string, event: React.MouseEvent) => {
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    setSelectedMessage(message);
-    setSelectedDate(date);
-    setHoveredPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.top - 10
-    });
+    // MessageDisplay 컴포넌트 내부에서 hoveredMessage 상태를 관리하는 것이 더 효율적입니다.
+    // 만약 Index.tsx에서 이 상태들을 직접 관리하여 외부 모달 등을 띄우는 것이 목적이라면 유지.
+    // 현재 코드에서는 해당 상태들이 사용되지 않고 주석 처리되어 있습니다.
+    // (이 주석은 설명을 위해 남겨둔 것이므로, 실제 코드에서는 제거하거나 필요에 따라 구현하세요.)
   };
 
   const handleMessageLeave = () => {
-    setSelectedMessage(null);
-    setSelectedDate(null);
-    setHoveredPosition(null);
+    // 위와 동일
   };
+
 
   if (isLoadingInitial && flowers.length === 0 && leaves.length === 0) {
     return (
@@ -83,6 +98,10 @@ const Index = () => {
       </div>
     );
   }
+
+  // 에러 메시지 표시 (선택 사항)
+  {/* {error && <div className="text-red-500 text-center mt-4">{error}</div>} */}
+
 
   return (
     <>
@@ -157,7 +176,7 @@ const Index = () => {
                   leaves={leaves} 
                   onMessageHover={handleMessageHover}
                   onMessageLeave={handleMessageLeave}
-                  newlyCreatedMessage={newlyCreatedMessage}
+                  newlyCreatedMessage={newlyCreatedMessage} // 새로 생성된 메시지 전달
                 />
               </div>
             )}
