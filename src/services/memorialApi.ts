@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FlowerMessage, LeafMessage, BackendApiResponse } from '@/types/memorial';
 import { Content } from 'vaul';
 
-const BASE_URL = 'http://localhost:8081/api/v1';
+const BASE_URL = 'http://localhost:8081/messages';
 
 const api = axios.create({
   baseURL: BASE_URL,
