@@ -1,4 +1,6 @@
-# Welcome to your Lovable project
+## Memorial Page - [사용자] 추모 페이지 프론트엔드 시스템
+이 프로젝트는 기증자를 추모하기 위한 "추모 페이지" 서비스의 사용자 프론트엔드 API 서버입니다. 
+사용자는 꽃과 나뭇잎 모양의 추모 메시지를 남길 수 있습니다.
 
 ## Project info
 
